@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+<body>
+&lt;?php<br/>
+<br/>
+/*<br/>
+ * Title: FaceMash Jac P Script<br/>
+ * Author: Anders Moefelt / http://moefelt.dk<br/>
+ * Version: 1.0<br/>
+ * <br/>
+ * Great resources:<br/>
+ *<br/>
+ * 1) http://www.jasonhuber.net/the&ndash;social&ndash;network&ndash;rating&ndash;formula&ndash;elo/<br/>
+ * 2) http://www.imdb.com/title/tt1285016/<br/>
+ * 3) http://en.wikipedia.org/wiki/Mark_Zuckerberg<br/>
+ * 4) http://www.facebook.com/markzuckerberg<br/>
+ *<br/>
+ * Performance rating = [(Total of opponents&#39; ratings + 400 * (Wins &ndash; Losses)) / score].<br/>
+ */<br/>
+<br/>
+include(&#39;mysql.php&#39;);<br/>
+include(&#39;functions.php&#39;);<br/>
+<br/>
+<br/>
+// Get random 2<br/>
+$query=&quot;SELECT * FROM images ORDER BY RAND() LIMIT 0,30&quot;;<br/>
+$result = @mysql_query($query);<br/>
+<br/>
+while($row = mysql_fetch_object($result)) {<br/>
+&nbsp;&nbsp;&nbsp;$images[] = (object) $row;<br/>
+}<br/>
+<br/>
+<br/>
+// Get the top10<br/>
+$result = mysql_query(&quot;SELECT *, ROUND(score/(1+(losses/wins))) AS performance FROM images ORDER BY ROUND(score/(1+(losses/wins))) DESC LIMIT 0,10&quot;);<br/>
+while($row = mysql_fetch_object($result)) $top_ratings[] = (object) $row;<br/>
+<br/>
+<br/>
+// Close the connection<br/>
+mysql_close();<br/>
+<br/>
+<br/>
+?&gt;<br/>
+&lt;!DOCTYPE html PUBLIC &quot;&ndash;//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1&ndash;transitional.dtd&quot;&gt;<br/>
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;<br/>
+&lt;head&gt;<br/>
+&lt;meta http&ndash;equiv=&quot;Content&ndash;Type&quot; content=&quot;text/html; charset=utf&ndash;8&quot; /&gt;<br/>
+&lt;title&gt;FaceMash Jac P Script&lt;/title&gt;<br/>
+&lt;link href=&quot;css/main.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; /&gt;<br/>
+&lt;/head&gt;<br/>
+<br/>
+&lt;body&gt;<br/>
+<br/>
+<br/>
+&lt;h1&gt;FaceMash Jac P&lt;/h1&gt;<br/>
+&lt;h3&gt;Were we let in for our looks? No. Will we be judged on them? Yes.&lt;/h3&gt;<br/>
+&lt;h2&gt;Who&#39;s hotter? Click to choose.&lt;/h2&gt;<br/>
+<br/>
+&lt;center&gt;<br/>
+&lt;table&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td valign=&quot;top&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;rate.php?winner=&lt;?=$images[0]&ndash;&gt;image_id?&gt;&amp;loser=&lt;?=$images[1]&ndash;&gt;image_id?&gt;&quot;&gt;&lt;img src=&quot;images/&lt;?=$images[0]&ndash;&gt;filename?&gt;&quot; /&gt;&lt;/a&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td valign=&quot;top&quot; class=&quot;image&quot;&gt;&lt;a href=&quot;rate.php?winner=&lt;?=$images[1]&ndash;&gt;image_id?&gt;&amp;loser=&lt;?=$images[0]&ndash;&gt;image_id?&gt;&quot;&gt;&lt;img src=&quot;images/&lt;?=$images[1]&ndash;&gt;filename?&gt;&quot; /&gt;&lt;/a&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Won: &lt;?=$images[0]&ndash;&gt;wins?&gt;, Lost: &lt;?=$images[0]&ndash;&gt;losses?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Won: &lt;?=$images[1]&ndash;&gt;wins?&gt;, Lost: &lt;?=$images[1]&ndash;&gt;losses?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Score: &lt;?=$images[0]&ndash;&gt;score?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Score: &lt;?=$images[1]&ndash;&gt;score?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Expected: &lt;?=round(expected($images[1]&ndash;&gt;score, $images[0]&ndash;&gt;score), 4)?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Expected: &lt;?=round(expected($images[0]&ndash;&gt;score, $images[1]&ndash;&gt;score), 4)?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&lt;/table&gt;<br/>
+&lt;/center&gt;<br/>
+<br/>
+&lt;h2&gt;Top Rated&lt;/h2&gt;<br/>
+&lt;center&gt;<br/>
+&lt;table&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? foreach($top_ratings as $key =&gt; $image) : ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td valign=&quot;top&quot;&gt;&lt;img src=&quot;images/&lt;?=$image&ndash;&gt;filename?&gt;&quot; width=&quot;70&quot; /&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? endforeach ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;? <br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? foreach($top_ratings as $key =&gt; $image) : ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td valign=&quot;top&quot;&gt;Score: &lt;?=$image&ndash;&gt;score?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? endforeach ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? foreach($top_ratings as $key =&gt; $image) : ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td valign=&quot;top&quot;&gt;Performance: &lt;?=$image&ndash;&gt;performance?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? endforeach ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? foreach($top_ratings as $key =&gt; $image) : ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td valign=&quot;top&quot;&gt;Won: &lt;?=$image&ndash;&gt;wins?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? endforeach ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? foreach($top_ratings as $key =&gt; $image) : ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td valign=&quot;top&quot;&gt;Lost: &lt;?=$image&ndash;&gt;losses?&gt;&lt;/td&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;? endforeach ?&gt;<br/>
+&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br/>
+&nbsp;&nbsp;&nbsp; ?&gt;<br/>
+&lt;/table&gt;<br/>
+&lt;/center&gt;<br/>
+<br/>
+&lt;/body&gt;<br/>
+&lt;/html&gt;</body></html>

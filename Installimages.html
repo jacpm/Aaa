@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+<body>
+&lt;?php<br/>
+<br/>
+include(&#39;mysql.php&#39;);<br/>
+<br/>
+if ($handle = opendir(&#39;images&#39;)) {<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;/* This is the correct way to loop over the directory. */<br/>
+&nbsp;&nbsp;&nbsp;while (false !== ($file = readdir($handle))) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($file!=&#39;.&#39; &amp;&amp; $file!=&#39;..&#39;) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$images[] = &quot;(&#39;&quot;.$file.&quot;&#39;)&quot;;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;closedir($handle);<br/>
+}<br/>
+<br/>
+$query = &quot;INSERT INTO images (filename) VALUES &quot;.implode(&#39;,&#39;, $images).&quot; &quot;;<br/>
+if (!mysql_query($query)) {<br/>
+&nbsp;&nbsp;&nbsp;print mysql_error();<br/>
+}<br/>
+else {<br/>
+&nbsp;&nbsp;&nbsp;print &quot;finished installing your images!&quot;;<br/>
+}<br/>
+<br/>
+<br/>
+?&gt;</body></html>
